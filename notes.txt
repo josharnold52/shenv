@@ -1,0 +1,51 @@
+TODO:
+
+================================================================================
+win32
+
+app + batch files:
+
+  * Instead of generating a batch file, could generate a file that is
+    parsed by the 'for' command.  I think it actually has enough flexibility to do what we need.  
+    Something like:
+    
+@ECHO OFF
+FOR /F "eol=; tokens=1* delims=:" %%i in (sproc.cmds) do (
+    IF X%%i==Xprint (
+        echo %%j
+    )
+    IF X%%i==Xset (
+        set %%j
+    )
+    IF X%%i==Xexec (
+        cmd /c %%j
+    )
+)
+
+Then the script file could be like:
+
+;Some comments
+print:Print some text
+set:MYVAR=MyVal
+set:MYVAR2=MyVal2
+exec:java --version
+
+================================================================================
+
+core module:
+
+  * Combine 'Context' and 'Node' classes in core module?.  Would need to use single underscores for node methods
+    we don't want to expose (the tree methods, for example).
+    
+  * Inject 'getuniverse' method into category and version, and 'getcategory' method into version.  (In addition
+    to getcontext method on all).   Maybe raise error if any of these attributes already exist.  Or maybe
+    don't inject
+    
+  * In core module, initialize 'target' to a vanilla object in the constructor.  Can maybe get rid
+    of some 'hastarget' calls.
+    
+  * Move ScriptBuilder into env module.
+  
+ 
+  
+

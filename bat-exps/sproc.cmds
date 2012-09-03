@@ -1,0 +1,4 @@
+print:hello there:dude
+;comment
+set:A=value ^<for^> A with:seps too!
+exec:dir

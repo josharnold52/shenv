@@ -1,0 +1,65 @@
+###############################
+## shenv configuration script
+##
+## For normal operation, place this in %USERPROFILE%\.shenv\shenv_cfg.py
+##
+###############################
+
+from shenv.app import BasicCategory, App
+
+#Normally universe, category, version are injected.  If not present, add them
+#in case we are running directly as a script.
+if 'universe' not in globals():
+    app = App()
+    universe, category, version = app.universe, app.category, app.version
+    del app
+
+@universe()
+class Universe:
+    pass
+
+############################ Python #################################
+
+@category()
+class Python(BasicCategory):
+    name = 'python'
+    description = 'A python runtime environment'
+    homevar = 'PYTHONHOME'
+    pathitems = ('',)
+    
+    def query_version(self,univ,cat,ver,builder):
+        builder.script.line('python --version')
+
+@version(Python)
+class CPython${pyver}:
+    name = (${pyver},)
+    description = 'CPython version ${pyver}' 
+    home = '${pyhome}'
+
+############################## Java #################################
+
+@category()
+class Java(BasicCategory):
+    name = 'java'
+    description = 'The JDK including JRE' 
+    homevar = 'JAVA_HOME'
+    pathitems = ('bin','jre/bin')
+    
+    def query_version(self,univ,cat,ver,builder):
+        builder.script.line('java -version')
+        
+############################# Common ################################
+
+@category()
+class Common(BasicCategory):
+    name = 'common'
+    autoenable = True
+    description = 'Settings common to all environments' 
+    
+    
+@version(Common)
+class StandardCommon:
+    name = 'std','standard'
+    description = 'Standard settings common to all environments' 
+    
+    pathitems = $windirs

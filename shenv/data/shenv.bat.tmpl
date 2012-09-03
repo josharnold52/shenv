@@ -1,0 +1,63 @@
+@echo off
+REM Notes:
+
+REM By default, this batch file uses the python runtime specified 
+REM in the 'generated code' section.  This can be overridden by
+REM setting the __EMGR_ALT_PYTHON__ file.  
+
+$set_shenv_python_dir
+$set_shenv_python_file
+
+if defined __EMGR_TRACE__ echo on
+
+set __EMGR_TEMP_REF__=
+
+call :callpython -m shenv.tmpgen shenv- -shenv.tmp.bat %TEMP% >nul
+IF ERRORLEVEL 268435456 goto badtemp
+IF ERRORLEVEL 4096 goto havetemp
+:badtemp
+ECHO Temp file generation failed.
+GOTO cleanup
+:havetemp
+
+SET __EMGR_TEMP_REF__=%TEMP%\shenv-%ERRORLEVEL%-shenv.tmp.bat
+
+if defined __EMGR_DEBUG__ echo Temp file is %__EMGR_TEMP_REF__%
+
+call :callpython -m shenv.app "%USERPROFILE%\.shenv\shenv_cfg.py" %__EMGR_TEMP_REF__% %*
+if errorlevel 1 (
+    ECHO.
+    ECHO.
+    ECHO *** shenv script generation failed ***
+    type %__EMGR_TEMP_REF__%
+    ECHO *************************************
+) else (
+    call %__EMGR_TEMP_REF__%
+)
+
+
+
+goto cleanup
+:callpython
+setlocal ENABLEEXTENSIONS
+if not defined __EMGR_ALT_PYTHON__ (
+  set PYTHONPATH=
+  set PYTHONHOME=
+  set thecommand=%__EMGR_PYTHON_DIR__%\%__EMGR_PYTHON_FILE__%
+  pushd "%__EMGR_PYTHON_DIR__%"
+) else (
+  set thecommand=%__EMGR_ALT_PYTHON__%
+  pushd .
+)
+"%thecommand%" %*
+popd
+exit /B
+
+
+:cleanup
+set __EMGR_PYTHON_FILE__=
+set __EMGR_PYTHON_DIR__=
+if defined __EMGR_TEMP_REF__ (
+  del %__EMGR_TEMP_REF__%
+)
+set __EMGR_TEMP_REF__=

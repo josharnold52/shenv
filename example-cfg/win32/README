@@ -1,0 +1,5 @@
+Config file normally goes in 
+
+{home}\.shenv\shenv_cfg.py
+
+Where {home} is the users home (or profile) dir
