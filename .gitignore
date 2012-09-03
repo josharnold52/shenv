@@ -30,4 +30,6 @@ __pycache__/
 /emgr.bat
 /scratch.py
 /myenv.py
+/.pydevproject
+/.project
 
