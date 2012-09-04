@@ -17,8 +17,8 @@ class reiterable:
         return self.__fn()
     
 
-def _startswith(str, chk):
-    return str[0:len(chk)]==chk
+def _startswith(s, chk):
+    return s[0:len(chk)]==chk
 
 
 def _linesof(s):
@@ -100,9 +100,9 @@ the -f option is not in use then this option has no effect.""")
             sys.exit(3)
           
     def __ensuredir(self,file):
-        dir = path.dirname(file)
+        dirnm = path.dirname(file)
         try:
-            os.makedirs(dir) #TODO add mode
+            os.makedirs(dirnm) #TODO add mode
         except os.error:
             return False
         return True
