@@ -19,37 +19,44 @@ class Universe:
     pass
 
 ############################ Python #################################
+#
+#@category()
+#class Python(BasicCategory):
+#    name = 'python'
+#    description = 'A python runtime environment'
+#    homevar = 'PYTHONHOME'
+#    pathitems = ('',)
+#    
+#    def query_version(self,univ,cat,ver,builder):
+#        builder.script.line('python --version')
+#
+#@version(Python)
+#class CPython${pyver}:
+#    name = (${pyver},)
+#    description = 'CPython version ${pyver}' 
+#    home = '${pyhome}'
 
-@category()
-class Python(BasicCategory):
-    name = 'python'
-    description = 'A python runtime environment'
-    homevar = 'PYTHONHOME'
-    pathitems = ('',)
-    
-    def query_version(self,univ,cat,ver,builder):
-        builder.script.line('python --version')
-
-@version(Python)
-class CPython${pyver}:
-    name = (${pyver},)
-    description = 'CPython version ${pyver}' 
-    home = '${pyhome}'
 
 ############################## Java #################################
-
-@category()
-class Java(BasicCategory):
-    name = 'java'
-    description = 'The JDK including JRE' 
-    homevar = 'JAVA_HOME'
-    pathitems = ('bin','jre/bin')
-    
-    def query_version(self,univ,cat,ver,builder):
-        builder.script.line('java -version')
+#
+#@category()
+#class Java(BasicCategory):
+#    name = 'java'
+#    description = 'The JDK including JRE' 
+#    homevar = 'JAVA_HOME'
+#    pathitems = ('bin','jre/bin')
+#    
+#    def query_version(self,univ,cat,ver,builder):
+#        builder.script.line('java -version')
+#
+#@version(Java)
+#class JavaOpenJDK6
+#    name = ('openJDK6','6')
+#    description = 'OpenJDK 6' 
+#    home = '<todo>'
+ 
         
 ############################# Common ################################
-
 @category()
 class Common(BasicCategory):
     name = 'common'
@@ -62,4 +69,4 @@ class StandardCommon:
     name = 'std','standard'
     description = 'Standard settings common to all environments' 
     
-    pathitems = $windirs
+    pathitems = $pathdirs

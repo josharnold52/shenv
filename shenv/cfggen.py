@@ -19,6 +19,10 @@ def winpathitems():
     windir = path.normcase(windir)
     return (p for p in srchpath.split(path.pathsep) if 
               _utils._startswith(path.normcase(p), windir))
+
+def pathitems():
+    srchpath = environ.get('PATH','')
+    return srchpath.split(path.pathsep)
     
 def get_template_lines():
     exedir, _ = path.split(path.abspath(sys.executable))
@@ -29,7 +33,8 @@ def get_template_lines():
     tmpltext = template.substitute({
                 'pyver' : '31',
                 'pyhome' : exedir,
-                'windirs' : repr(tuple(winpathitems()))
+                'windirs' : repr(tuple(winpathitems())),
+                'pathdirs' : repr(tuple(pathitems()))
                     })
 
     return list(_utils._linesof(tmpltext))

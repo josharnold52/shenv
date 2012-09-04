@@ -70,7 +70,7 @@ class BashSyntax(ShellSyntax):
         return 'export {0}={1}'.format(name,self.__quote_literal(value))
     
     def delvar(self, name):
-        return 'export -n {0}'.format(name)
+        return 'export -n {0} ; unset {1}'.format(name,name)
     
     def echo(self, msg):
         return 'echo {0}'.format(self.__quote_literal(msg))

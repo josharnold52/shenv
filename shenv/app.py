@@ -146,7 +146,23 @@ class _Processor:
         
     def unspecify_category(self, cat, builder):
         self.__change_env(cat, None, shenv.core.VERSION_SENTINEL_UNSPECIFIED, builder)
+
+    def spit_categories(self,builder):
+        for catctx in self.context.getcategory_contexts():
+            allnames = [catctx.primary_name] + list(catctx.alt_names)
+            for name in allnames:
+                builder.script.echo(name)
                 
+    def spit_versions(self,cat,builder):
+        try:
+            catctx = self.context.getcategory_context(cat)
+        except Exception:
+            return
+        for verctx in catctx.getversion_contexts():
+            allnames = [verctx.primary_name] + list(verctx.alt_names)
+            for name in allnames:
+                builder.script.echo(name)
+
     def list_categories(self,builder):
         msg = self.list_format.format('category','aliases','description')
         builder.script.echo(msg)
@@ -271,7 +287,7 @@ class App:
             out = sys.stdout
         args = list(args)
         builder = self._processor.create_builder()
-        builder.script.echo()
+        #builder.script.echo()
         #print(':'.join(args),file=sys.stderr)
         cmd = '_handle_'+args[1] if len(args)>1 else ''
         if cmd and hasattr(self,cmd):
@@ -281,7 +297,7 @@ class App:
                 self.__show_usage(builder)
         else:
             self.__show_usage(builder)
-        builder.script.echo()
+        #builder.script.echo()
         out.write(builder.generate())
 
     def _handle_list(self, builder, *params):
@@ -291,6 +307,14 @@ class App:
             self._processor.list_versions(params[0], builder)
         else:
             self._processor.list_categories(builder)
+
+    def _handle_spit(self, builder, *params):
+        if (len(params)) not in {0,1}:
+            raise ShowUsageSignal()
+        if params:
+            self._processor.spit_versions(params[0], builder)
+        else:
+            self._processor.spit_categories(builder)
 
     def _handle_show(self, builder, *params):
         if (len(params)) not in {0,1}:
@@ -317,7 +341,7 @@ class App:
             raise ShowUsageSignal()
         self._processor.disable_category(params[0], builder)
 
-    def _handle_setup(self, builder, *params):
+    def _handle_init(self, builder, *params):
         if len(params) != 0:
             raise ShowUsageSignal()
         self._processor.setup(builder)
@@ -347,7 +371,9 @@ usage:
 {0} show                 -> show current state of all categories
 {0} list <cat>           -> lists all versions for <cat>
 {0} list                 -> lists all categories
-{0} setup                -> ensures a valid environment is installed
+{0} spit <cat>           -> list all versions for <cat> (unformatted)
+{0} spit                 -> lists all categories (unformatted)
+{0} init                 -> ensures a valid environment is installed
 {0} generate             -> output a configuration file template
 {0} [<anything-else>]    -> show help
 """
