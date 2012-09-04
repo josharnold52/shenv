@@ -5,7 +5,17 @@ Shell environment manager
 
 ### Bash Installation
 
-(todo)
+(in progress)
+
+In `.bashrc` or equivalent, add the following:
+
+```
+export SHENV_HOME=/path/to/shenv
+source $SHENV_HOME/example-cfg/bash/shenv-setup.bash
+shenv setup
+```
+
+The configuration file is `~/.shenv/shenv_cfg.py`  (use `shenv generate` to generate a template).
 
 ### Win32 cmd Installation
 
