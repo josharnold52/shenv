@@ -3,20 +3,23 @@ Created on Jan 21, 2011
 
 @author: Arnold
 '''
-
+import sys
 import shenv.shell
 import shenv.core
 import shenv.cfggen
+import shenv.cfgimp
 import os.path
 import io
-import sys
 import abc
-import runpy
-
 #Fake abc reference to suppress bogus warning in pydev, which otherwise thinks
 #abc is unused, probably because it doesn't understand the new python 3 metaclass
 #syntax
 abc.ABCMeta
+
+## These decorator functions are set when main is called
+universe = None
+category = None
+version = None
 
 _MODULES_VAR = '_SHELL_MODULES'
 
@@ -380,25 +383,17 @@ usage:
     app_name = 'shenv'
 
     
-
-def _runpy(cfgscript, glos):
-    cfgdir, cfgfile = os.path.split(os.path.abspath(cfgscript))
-    cfgbase, _ = os.path.splitext(cfgfile)
-    
-    #TODO - testing (is this really any faster?)
-    #import compileall 
-    #compileall.compile_dir(cfgdir, maxlevels=0, quiet=True)
-    
-    save = type('tmp',(object,),{})()   #Make an empty object
-    save.path, save.path_hooks = tuple(sys.path), tuple(sys.path_hooks)
-    try:
-        sys.path[:] = [cfgdir]
-        sys.path_hooks[:] = []
-        return runpy.run_module(cfgbase, init_globals=dict(glos), alter_sys=True)
-    finally:
-        sys.path[:], sys.path_hooks[:] = save.path, save.path_hooks
      
-def main(argv):    
+def main(argv = None):
+    
+    if argv is None:
+        argv = sys.argv
+    argv = list(argv)
+        
+    global universe
+    global category
+    global version
+
     shell = 'win32cmd'
     if len(argv) >=3 and argv[1] == '--shell':
         shell = argv[2]
@@ -419,12 +414,16 @@ def main(argv):
               .format(configfile),file=sys.stderr)
         return 2
     
-    app = App(platform)
-    glos = {'universe' : app.universe,
-            'category' : app.category,
-            'version' : app.version}
-    _runpy(configfile, glos)
     
+    app = App(platform)
+    
+    universe = app.universe
+    category = app.category
+    version = app.version
+    
+    shenv.cfgimp.import_configuration(configfile)
+    #glos = _runpy(configfile, glos)
+    #print(glos.keys(),file=sys.stderr)
     
     innerargs = argv[0:1] + argv[3:]
     if argv[2] == '(stdout)':
@@ -438,5 +437,9 @@ def main(argv):
     
 
 if __name__ == '__main__':
-    ec = main(sys.argv)
+    import importlib
+    # When running as a script through the IDE, 
+    this_module_in_context = importlib.import_module('shenv.app', None)
+    ec = this_module_in_context.main()
     sys.exit(ec)
+    

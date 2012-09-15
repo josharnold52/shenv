@@ -4,22 +4,19 @@
 ## For normal operation, place this in %USERPROFILE%\.shenv\shenv_cfg.py
 ##
 ###############################
+import sys
+from shenv.app import universe, category, version
+from shenv.app import BasicCategory
 
-from shenv.app import BasicCategory, App
+#print(globals().keys(),file=sys.stderr)
 
 #Normally universe, category, version are injected.  If not present, add them
 #in case we are running directly as a script.
-if 'universe' not in globals():
-    app = App()
-    universe, category, version = app.universe, app.category, app.version
-    del app
+#if 'universe' not in globals():
+#    app = App()
+#    universe, category, version = app.universe, app.category, app.version
+#    del app
 
-#HACK!
-def addClassRef(name):
-    def doit(cls):
-        setattr(cls, name, cls)
-        return cls
-    return doit
 
 @universe()
 class Universe:
@@ -67,7 +64,6 @@ class Scala292:
 
 ############################# Maven ################################
 
-@addClassRef('MavenClass')
 @category()
 class Maven(BasicCategory):
     name = 'mvn'
@@ -77,16 +73,16 @@ class Maven(BasicCategory):
     autoenable = True
     
     def install(self,univ,cat,ver,builder):
-        super(self.MavenClass, self).install(univ,cat,ver,builder)
+        super(Maven, self).install(univ,cat,ver,builder)
         builder.env.set('MAVEN_HOME', ver.home)
 
     def remove(self,univ,cat,ver,builder):
-        super(self.MavenClass, self).remove(univ,cat,ver,builder)
+        super(Maven, self).remove(univ,cat,ver,builder)
         if ver is not None:
             builder.env.remove('MAVEN_HOME')
             
     def clean(self,univ,cat,builder):
-        super(self.MavenClass, self).clean(univ,cat,builder)
+        super(Maven, self).clean(univ,cat,builder)
         builder.env.remove('MAVEN_HOME')
 
     def query_version(self,univ,cat,ver,builder):

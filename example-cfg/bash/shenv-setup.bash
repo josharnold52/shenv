@@ -15,8 +15,8 @@ function xshenv(){
 }
 
 
-export -f shenv
-export -f xshenv
+# export -f shenv
+# export -f xshenv
 
 _shenv_completion() 
 {
