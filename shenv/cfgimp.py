@@ -38,6 +38,9 @@ def import_configuration(cfgfile):
             with open(path, "rb") as f:
                 return f.read()
 
+        def module_repr(self, module):
+            return str(module)
+
     _config = CustomLoader().load_module("shenv._runtime_config")
     return _config
 
