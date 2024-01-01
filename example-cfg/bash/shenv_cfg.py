@@ -5,6 +5,7 @@
 ##
 ###############################
 import sys
+import os
 from shenv.app import universe, category, version
 from shenv.app import BasicCategory
 
@@ -28,19 +29,19 @@ class Universe:
 @category()
 class Java(BasicCategory):
     name = 'java'
-    description = 'The JDK including JRE' 
+    description = 'Java JDK' 
     homevar = 'JAVA_HOME'
-    pathitems = ('bin','jre/bin')
+    pathitems = ('bin',)
     autoenable = True
     
     def query_version(self,univ,cat,ver,builder):
         builder.script.line('java -version')
 
 @version(Java)
-class JavaSun6:
-    name = ('sun6','6')
-    description = 'Sun JDK 6' 
-    home = '/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home'
+class JavaDefault:
+    name = ('default',)
+    description = 'OS Default Java' 
+    home = '/usr/lib/jvm/default'
 
 ############################# Scala ################################
 
@@ -56,44 +57,44 @@ class Scala(BasicCategory):
         builder.script.line('scala -version')
 
 @version(Scala)
-class Scala292:
-    name = '292'
-    description = 'Scala 2.9.2' 
-    home = '/Users/arnold/devtools/langs/scala/scala-2.9.2'
+class Scala33:
+    name = '3.3'
+    description = 'Scala 3.3' 
+    home = '/usr/local/devtools/scala/scala3-3.3.0'
     dependencies = (Java,)
 
-############################# Maven ################################
+############################# gcloud ################################
 
 @category()
-class Maven(BasicCategory):
-    name = 'mvn'
-    description = 'Maven' 
-    homevar = 'M2_HOME'
+class Gcloud(BasicCategory):
+    name = 'gcloud'
+    description = 'gcloud' 
+    homevar = 'GCLOUD_HOME'
     pathitems = ('bin',)
-    autoenable = True
+    autoenable = False
     
     def install(self,univ,cat,ver,builder):
-        super(Maven, self).install(univ,cat,ver,builder)
-        builder.env.set('MAVEN_HOME', ver.home)
+        super(Gcloud, self).install(univ,cat,ver,builder)
+        builder.env.add_post_var_command(f"source '{self.homevar}'/completion.bash.inc")
 
     def remove(self,univ,cat,ver,builder):
-        super(Maven, self).remove(univ,cat,ver,builder)
+        super(Gcloud, self).remove(univ,cat,ver,builder)
+
         if ver is not None:
-            builder.env.remove('MAVEN_HOME')
+            builder.env.add_pre_var_command(f"complete -r bq gsutil")
             
     def clean(self,univ,cat,builder):
-        super(Maven, self).clean(univ,cat,builder)
-        builder.env.remove('MAVEN_HOME')
+        super(Gcloud, self).clean(univ,cat,builder)
+        builder.env.add_pre_var_command('complete -r bq gsutil 2>/dev/null')
 
     def query_version(self,univ,cat,ver,builder):
-        builder.script.line('mvn --version')
+        builder.script.line("gcloud version | perl -pe 's/\n/; /' ; echo")
 
-@version(Maven)
-class Maven30:
-    name = '30'
-    description = 'Maven 3.0.x' 
-    home = '/Users/arnold/devtools/tools/maven/apache-maven-3.0.3'
-    dependencies = (Java,)
+@version(Gcloud)
+class GcloudStd:
+    name = 'std'
+    description = 'Gcloud standard install' 
+    home = '/home/arnold/devtools/google-cloud-sdk'
 
 
 ############################# Common ################################
@@ -109,16 +110,7 @@ class Common(BasicCategory):
 class StandardCommon:
     name = 'std','standard'
     description = 'Standard settings common to all environments' 
-    
-    pathitems = ('opt/local/bin',
-            '/opt/local/sbin',
-            '/Users/arnold/bin',
-            '/usr/bin',
-            '/bin',
-            '/usr/sbin',
-            '/sbin',
-            '/usr/local/bin',
-            '/usr/X11/bin',
-            '/usr/local/git/bin',
+    pathitems = tuple() if '_SHENV_INITPATH' not in os.environ else tuple(
+            os.environ['_SHENV_INITPATH'].split(':')
             )
 

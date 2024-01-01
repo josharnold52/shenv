@@ -1,3 +1,7 @@
+if [ -z ${_SHENV_INITPATH+x} ]; then
+  _SHENV_INITPATH="$PATH"
+  export _SHENV_INITPATH
+fi
 
 function shenv(){
   local cmdsToRun

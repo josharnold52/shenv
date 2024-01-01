@@ -153,6 +153,8 @@ class EnvironmentBuilder(object):
         super().__init__()
         self.__env_vars = collections.OrderedDict()
         self.__protected = set()
+        self.__pre_var_cmds = list()
+        self.__post_var_cmds = list()
 
     def set(self, name, value):
         '''Set the <name> variable to <value>'''
@@ -200,10 +202,18 @@ class EnvironmentBuilder(object):
         self.__env_vars.pop(name, None)
         self.__env_vars[name] = None
 
+    def add_pre_var_command(self, cmd):
+        self.__pre_var_cmds.append(cmd)
+
+    def add_post_var_command(self, cmd):
+        self.__post_var_cmds.append(cmd)
+
     def __str__(self):
         return str(self.__env_vars)
 
     def write(self, shell_writer):
+        for c in self.__pre_var_cmds:
+            shell_writer.line(c)
         for k, v in self.__env_vars.items():
             if k in self.__protected:
                 continue
@@ -211,6 +221,8 @@ class EnvironmentBuilder(object):
                 shell_writer.delvar(k)
             else:
                 shell_writer.setvar(k, v)
+        for c in self.__post_var_cmds:
+            shell_writer.line(c)
 
     def protect(self, name):
         self.__protected.add(str(name).upper())
